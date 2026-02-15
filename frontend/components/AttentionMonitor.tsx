@@ -115,7 +115,7 @@ export default function AttentionMonitor() {
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             isActive
               ? 'bg-red-500 hover:bg-red-600 text-white'
-              : 'bg-primary-500 hover:bg-primary-600 text-white'
+              : 'bg-primary hover:opacity-90 text-white'
           }`}
         >
           {isActive ? 'Stop' : 'Start'} Monitoring

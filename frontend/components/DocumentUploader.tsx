@@ -60,7 +60,7 @@ export default function DocumentUploader({ onUploadSuccess }: DocumentUploaderPr
 
   return (
     <div className="space-y-4">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
         <input
           type="file"
           ref={fileInputRef}

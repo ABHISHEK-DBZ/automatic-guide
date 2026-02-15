@@ -199,9 +199,9 @@ export default function ChatInterface() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-3xl rounded-lg p-4 space-y-4 animate-slide-up ${
+                className={`max-w-3xl rounded-lg p-4 space-y-4 animate-fade-in ${
                   message.role === 'user'
-                    ? 'bg-primary-500 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                 }`}
               >
@@ -249,8 +249,8 @@ export default function ChatInterface() {
               <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-gray-500">
                 <div className="flex space-x-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                 </div>
               </div>
             </div>
@@ -266,12 +266,12 @@ export default function ChatInterface() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question about your study materials..."
               disabled={loading}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="px-6 py-3 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
             >
               Send
             </button>
