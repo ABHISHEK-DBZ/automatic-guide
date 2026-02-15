@@ -420,7 +420,11 @@ docker compose down
 ## License
 
 MIT
+## Support
 
+If you find GuruCortex useful, consider supporting the project:
+
+<a href="https://buymeacoffee.com/abhishekjhadbz" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50"></a>
 ---
 
 Built with Ollama, FastAPI, Next.js, and ChromaDB.
