@@ -170,9 +170,9 @@ export default function SessionSidebar({
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer - Removed Phase 3 text */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 text-center">
-        Phase 3: Context Management
+        {/* Phase text removed per user request */}
       </div>
     </div>
   );

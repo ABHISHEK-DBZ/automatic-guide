@@ -1,15 +1,10 @@
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
-const inter = localFont({
-  src: '../public/fonts/Inter-Variable.woff2',
-  variable: '--font-inter',
-  display: 'swap',
-})
-
 export const metadata: Metadata = {
-  title: 'Guru-Agent | Active Cognitive Learning OS',
+  title: 'GuruCortex | Active Cognitive Learning OS',
   description: 'Your personal AI learning companion - 100% local, 100% private',
 }
 
@@ -19,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="bg-[#050B14] font-sans antialiased text-slate-100">{children}</body>
     </html>
   )
 }

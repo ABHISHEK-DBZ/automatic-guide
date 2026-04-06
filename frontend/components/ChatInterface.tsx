@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { api, ChatResponse } from '@/lib/api-client';
-import type { Message as ConversationMessage } from '@/types/conversation';
 import MermaidRenderer from './MermaidRenderer';
 import SessionSidebar from './SessionSidebar';
 import ConversationHeader from './ConversationHeader';
 import ContextIndicator from './ContextIndicator';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   id: string;
@@ -17,7 +18,37 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  selectedDocumentIds?: string[];
+  selectedDocumentNames?: string[];
+  onClearDocumentScope?: () => void;
+}
+
+function sanitizeAssistantText(text: string): string {
+  if (!text) return '';
+
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const cleaned = lines.filter((line) => {
+    const trimmed = line.trim().toLowerCase();
+    if (!trimmed) return true;
+
+    if (trimmed.startsWith('```mermaid') || trimmed === '```') return false;
+    if (trimmed.startsWith('error: parse error')) return false;
+    if (trimmed.startsWith('parse error on line')) return false;
+    if (trimmed.startsWith('expecting ')) return false;
+    if (trimmed.startsWith('mermaid syntax error')) return false;
+
+    return true;
+  });
+
+  return cleaned.join('\n').trim();
+}
+
+export default function ChatInterface({
+  selectedDocumentIds = [],
+  selectedDocumentNames = [],
+  onClearDocumentScope,
+}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -92,6 +123,7 @@ export default function ChatInterface() {
       const response: ChatResponse = await api.sendQuery({
         query: input,
         conversation_id: conversationId,
+        document_ids: selectedDocumentIds.length > 0 ? selectedDocumentIds : undefined,
         include_sources: true,
         generate_diagram: true,
       });
@@ -99,7 +131,7 @@ export default function ChatInterface() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.response,
+        content: sanitizeAssistantText(response.response),
         mermaid_diagram: response.mermaid_diagram,
         sources: response.sources,
         timestamp: new Date(response.timestamp),
@@ -183,13 +215,30 @@ export default function ChatInterface() {
           </div>
         </div>
 
+        {selectedDocumentIds.length > 0 && (
+          <div className="px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 flex items-center justify-between gap-3">
+            <div className="text-sm text-blue-700 dark:text-blue-200 truncate">
+              Scoped to: {selectedDocumentNames.length > 0 ? selectedDocumentNames.join(', ') : `${selectedDocumentIds.length} selected document(s)`}
+            </div>
+            {onClearDocumentScope && (
+              <button
+                type="button"
+                onClick={onClearDocumentScope}
+                className="text-xs px-2.5 py-1.5 rounded-md border border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40"
+              >
+                Clear Scope
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.length === 0 && (
-            <div className="text-center text-gray-500 mt-20">
+            <div className="text-center mt-20">
               <div className="text-6xl mb-4">🧠</div>
-              <h2 className="text-2xl font-bold mb-2">Ask Guru-Agent Anything</h2>
-              <p>Upload study materials and start asking questions!</p>
+              <h2 className="text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Ask GuruCortex Anything</h2>
+              <p className="text-slate-400 text-lg">Upload study materials and start asking questions!</p>
             </div>
           )}
 
@@ -205,7 +254,15 @@ export default function ChatInterface() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                 }`}
               >
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                {message.role === 'user' ? (
+                  <div className="whitespace-pre-wrap">{message.content}</div>
+                ) : (
+                  <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed prose-p:my-2 prose-headings:mb-3 prose-headings:mt-4 prose-ul:my-2 prose-li:my-0.5">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
 
                 {/* Mermaid Diagram */}
                 {message.mermaid_diagram && (
