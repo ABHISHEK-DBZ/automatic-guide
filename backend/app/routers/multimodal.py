@@ -169,6 +169,9 @@ async def analyze_attention(request: AttentionAnalysisRequest):
                 raise ValueError("Failed to decode image from b64 string.")
 
             metrics = tracker.analyze_frame(frame)
+            if metrics is None:
+                # analyze_frame returns None when no face is detected
+                metrics = tracker._get_empty_metrics()
             used_fallback = False
 
     except Exception as e:

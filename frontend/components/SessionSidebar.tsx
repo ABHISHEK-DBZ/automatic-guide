@@ -39,20 +39,29 @@ export default function SessionSidebar({
 
   const handleDelete = async (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent conversation selection
+    console.log(`Delete requested for conversation: ${conversationId}`);
 
-    if (!confirm('Delete this conversation?')) return;
+    if (!confirm('Delete this conversation?')) {
+      console.log('Delete cancelled by user');
+      return;
+    }
 
     try {
+      console.log(`Sending DELETE request to /conversations/${conversationId}`);
       await api.deleteConversation(conversationId);
-      setConversations(conversations.filter((c) => c.id !== conversationId));
+      console.log('DELETE request successful');
+      
+      // Update local state using functional update to avoid stale closure
+      setConversations(prev => prev.filter((c) => c.id !== conversationId));
 
       // If deleting current conversation, create a new one
       if (conversationId === currentConversationId) {
+        console.log('Deleting current conversation, resetting view');
         onNewConversation();
       }
     } catch (err) {
       console.error('Failed to delete conversation:', err);
-      alert('Failed to delete conversation');
+      alert('Failed to delete conversation. Check backend connection.');
     }
   };
 

@@ -21,14 +21,41 @@ def main():
     os.chdir(backend_dir)
     print(f"📁 Working directory: {os.getcwd()}")
     
-    # Check if venv exists
+    # Find a Python with uvicorn installed
+    # Check multiple venv locations (backend-local and project-root)
     venv_path = Path(".venv")
-    if not venv_path.exists():
-        print("❌ Virtual environment not found!")
-        return 1
+    root_venv_path = Path("..") / ".venv"
     
-    # Start the server
-    python_exe = venv_path / "Scripts" / "python.exe"
+    candidates = [
+        root_venv_path / "Scripts" / "python.exe",   # Root venv (Windows)
+        root_venv_path / "bin" / "python.exe",        # Root venv (MSYS2)
+        venv_path / "Scripts" / "python.exe",          # Backend venv (Windows)
+        venv_path / "bin" / "python.exe",              # Backend venv (MSYS2)
+    ]
+    
+    python_exe = None
+    for candidate in candidates:
+        if candidate.exists():
+            # Verify this Python actually has uvicorn
+            try:
+                result = subprocess.run(
+                    [str(candidate), "-c", "import uvicorn"],
+                    capture_output=True, timeout=10
+                )
+                if result.returncode == 0:
+                    python_exe = candidate
+                    print(f"✅ Using Python: {candidate.resolve()}")
+                    break
+                else:
+                    print(f"⚠️  {candidate} exists but missing uvicorn, skipping...")
+            except Exception:
+                continue
+    
+    if python_exe is None:
+        print("❌ No Python with uvicorn found! Install deps with:")
+        print("   pip install -r requirements.txt")
+        return 1
+
     
     print("🔧 Starting FastAPI server...")
     print("   Host: 0.0.0.0")

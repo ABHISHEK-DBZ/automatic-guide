@@ -120,16 +120,23 @@ export default function DocumentUploader({
   };
 
   const handleDeleteDocument = async (documentId: string, documentName: string) => {
+    console.log(`Delete requested for document: ${documentName} (${documentId})`);
+    
     if (!confirm(`Are you sure you want to delete "${documentName}"? This action cannot be undone.`)) {
+      console.log('Delete cancelled by user');
       return;
     }
 
     try {
+      console.log(`Sending DELETE request to /documents/${documentId}`);
       await api.deleteDocument(documentId);
+      console.log('DELETE request successful');
+      
       setMessage({ text: `Successfully deleted "${documentName}"`, type: 'success' });
       
       // Remove from selection if it was selected
       if (selectedDocumentIds.includes(documentId)) {
+        console.log('Removing document from current selection');
         const newSelection = selectedDocumentIds.filter(id => id !== documentId);
         updateSelection(newSelection);
       }
@@ -138,7 +145,7 @@ export default function DocumentUploader({
       await loadDocuments();
     } catch (error) {
       console.error('Failed to delete document:', error);
-      setMessage({ text: `Failed to delete "${documentName}". Please try again.`, type: 'error' });
+      setMessage({ text: `Failed to delete document: ${error instanceof Error ? error.message : 'Unknown error'}`, type: 'error' });
     }
   };
 
